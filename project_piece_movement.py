@@ -2,9 +2,12 @@ import chess  # python-chess.readthedocs.io
 import chess.pgn
 from collections import defaultdict
 from visualize_board import plot_color_sum_per_square, PlotType, ScaleType
+from argparse import ArgumentParser
 
-DEBUG = False
-PLOT_FIRST_GAME_ONLY = True  # Or plot all together.
+parser = ArgumentParser()
+parser.add_argument('-g', '--games', help="Either 'first' to analyze only the first game or 'all' for an aggregate", default='first')
+parser.add_argument('-d', '--debug', help="Whether to debug", action='store_true', default=False)
+args = parser.parse_args()
 
 class Piece:
     def __init__(self, square):
@@ -39,7 +42,6 @@ with open("Magnus_Carlsen.pgn") as pgn:
             is_capture = False
             if board.is_capture(move):
                 is_capture = True
-            # print(board.san(move))
             board.push(move)
 
             # A piece died! Update it.
@@ -56,11 +58,14 @@ with open("Magnus_Carlsen.pgn") as pgn:
                     # Distance in king steps.
                     moved_this_turn = chess.square_distance(move.from_square, move.to_square)
                     piece.squares_moved += moved_this_turn
-                    #print(chess.square_name(move.from_square),' moved ', moved_this_turn)
+                    if args.debug:
+                        print(chess.square_name(move.from_square),' moved ', moved_this_turn)
                     piece.traj.append(chess.square_name(move.to_square))
                     break
-            #print(board)
-            #input()
+
+            if args.debug:
+                print(board)
+                input()
 
         for square in range(64):
             if square >= 16 and square < (64-16):
@@ -74,9 +79,10 @@ with open("Magnus_Carlsen.pgn") as pgn:
                         break
 
 
-        if PLOT_FIRST_GAME_ONLY:
-            plot_color_sum_per_square(color_sum_per_square, title='Piece movement', zname='Squares moved', cmap='viridis', plot_type=PlotType.Absolute, scale_type=ScaleType.Log)
+        if args.games == 'first':
+            plot_color_sum_per_square(color_sum_per_square, title='Piece movement', zname='Squares moved', cmap='viridis', plot_type=PlotType.Relative, scale_type=ScaleType.Log)
             exit()
     
-    plot_color_sum_per_square(total_color_sum_per_square, title='Piece movement', zname='Squares moved', cmap='viridis', plot_type=PlotType.Absolute, scale_type=ScaleType.Log)
+    plot_color_sum_per_square(total_color_sum_per_square, title='Average piece movement per game', zname='Squares moved', cmap='viridis',
+                              plot_type=PlotType.AveragePerGame, scale_type=ScaleType.Linear, number_of_games=number_of_games)
     

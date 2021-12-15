@@ -16,7 +16,8 @@ Absolute plot type is for plotting the numbers directly.
 '''
 class PlotType(enum.Enum):
    Relative = 1
-   Absolute = 2
+   AveragePerGame = 2
+   Absolute = 3
 
 def add_color(a, b):
     r = [0,0,0]
@@ -100,7 +101,8 @@ Main entry point to plot both in 2D and 3d.
 color_sum_per_square is an array of 64 values for squares corresponding to a1, b1, ..., h8
 '''
 def plot_color_sum_per_square(color_sum_per_square, title='Relative difference in player control',
-                              cmap='seismic', zname='Diff', plot_type=PlotType.Relative, scale_type=ScaleType.Linear):
+                              cmap='seismic', zname='Diff', plot_type=PlotType.Relative, scale_type=ScaleType.Linear,
+                              number_of_games=1):
     board_color_sum = []
     total_sum = 0
     for i in range(64):
@@ -109,6 +111,9 @@ def plot_color_sum_per_square(color_sum_per_square, title='Relative difference i
     if plot_type == PlotType.Relative:
         for i in range(64):
             board_color_sum[i] /= total_sum
+    elif plot_type == PlotType.AveragePerGame:
+        for i in range(64):
+            board_color_sum[i] /= number_of_games
 
     plot_board_2d(board_color_sum, title=title, cmap=cmap, scale_type=scale_type)
     plot_board_3d(board_color_sum, title=title, zname=zname)

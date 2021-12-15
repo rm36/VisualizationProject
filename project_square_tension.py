@@ -2,9 +2,12 @@ import chess  # python-chess.readthedocs.io
 import chess.pgn
 from collections import defaultdict
 from visualize_board import plot_color_sum_per_square, PlotType, ScaleType
+from argparse import ArgumentParser
 
-DEBUG = False
-PLOT_FIRST_GAME_ONLY = True  # Or plot all together.
+parser = ArgumentParser()
+parser.add_argument('-g', '--games', help="Either 'first' to analyze only the first game or 'all' for an aggregate", default='first')
+parser.add_argument('-d', '--debug', help="Whether to debug", action='store_true', default=False)
+args = parser.parse_args()
 
 class Piece:
     def __init__(self, piece, square):
@@ -51,10 +54,10 @@ with open("Magnus_Carlsen.pgn") as pgn:
                 is_piece_captured = (move.to_square == piece.curr_square and is_capture)
                 if not piece.ded and can_piece_be_captured and not is_piece_captured:
                     piece.tension_turns += 1
-                    if DEBUG:
+                    if args.debug:
                         print('piece at ', chess.square_name(piece.curr_square), ' is in tension: ', piece.name)
             board.push(move)
-            if DEBUG:
+            if args.debug:
                 print(board)
                 input()
 
@@ -83,7 +86,7 @@ with open("Magnus_Carlsen.pgn") as pgn:
                         break
 
 
-        if PLOT_FIRST_GAME_ONLY:
+        if args.games == 'first':
             plot_color_sum_per_square(color_sum_per_square, title='Piece tension', zname='Turns in tension', cmap='viridis', plot_type=PlotType.Absolute, scale_type=ScaleType.Log)
             exit()
     

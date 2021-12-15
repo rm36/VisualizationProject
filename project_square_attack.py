@@ -2,9 +2,12 @@ import chess  # python-chess.readthedocs.io
 import chess.pgn
 from collections import defaultdict
 from visualize_board import plot_color_sum_per_square
+from argparse import ArgumentParser
 
-DEBUG = False
-PLOT_FIRST_GAME_ONLY = True  # Or plot all together.
+parser = ArgumentParser()
+parser.add_argument('-g', '--games', help="Either 'first' to analyze only the first game or 'all' for an aggregate", default='first')
+parser.add_argument('-d', '--debug', help="Whether to debug", action='store_true', default=False)
+args = parser.parse_args()
 
 total_color_sum_per_square = defaultdict(int)
 
@@ -35,7 +38,7 @@ with open("Magnus_Carlsen.pgn") as pgn:
                 color_sum_per_square[square] += attack_sum
                 total_color_sum_per_square[square] += attack_sum
 
-        if PLOT_FIRST_GAME_ONLY:
+        if args.games == 'first':
             plot_color_sum_per_square(color_sum_per_square, title='Relative difference in player control')
             exit()
     
